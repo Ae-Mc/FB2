@@ -18,11 +18,14 @@ class FictionBook2():
     srcLang: Optional[str] = None
     translators: Optional[List[str]] = None
     sequences: Optional[List[Tuple[str, int]]] = None
-    docAuthors: List[str] = ("Ae-Mc")
+    docAuthors: List[str] = tuple("Ae-Mc")
     docId: str = str(uuid4())
     docVersion: str = "1.0"
     chapters: List[Tuple[str, List[str]]] = ()
 
     def write(self, filename: str):
         with open(filename, 'w') as f:
-            f.write(FB2Builder._PrettifyXml(FB2Builder(self).GetFB2()))
+            f.write(str(self))
+
+    def __str__(self) -> str:
+        return FB2Builder._PrettifyXml(FB2Builder(self).GetFB2())
