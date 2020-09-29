@@ -1,2 +1,3 @@
 # FB2
-FictionBook Python package
+
+Python package for working with FictionBook2
