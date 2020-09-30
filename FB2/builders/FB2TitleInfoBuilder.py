@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from typing import List, Union
+from typing import List, Union, Tuple
 from datetime import datetime
 from .BuildAuthorName import BuildAuthorName
 
@@ -42,6 +42,37 @@ class FB2TitileInfoBuilder:
 
     def AddLang(self, lang: str) -> None:
         ET.SubElement(self.result, "lang").text = lang
+
+    def AddSrcLang(self, srcLang: str) -> None:
+        ET.SubElement(self.result, "src-lang").text = srcLang
+
+    def AddTranslators(self,
+                       translators: List[Union[str, ET.Element]]) -> None:
+        for translator in translators:
+            if isinstance(translator, str):
+                self.result.append(BuildAuthorName("translator", translator))
+            else:
+                self.result.append(translator)
+
+    def AddSequences(
+            self, sequences: List[Union[Tuple[str, int], ET.Element]]) -> None:
+        for sequence in sequences:
+            if isinstance(sequence, ET.Element):
+                self.result.append(sequence)
+            else:
+                ET.SubElement(self.result, "sequence", attrib={
+                    "name": sequence[0],
+                    "number": str(sequence[1])
+                })
+
+    def AddCoverImages(self, coverLinks: List[str]) -> None:
+        coverPageElement = ET.Element("coverpage")
+        for coverLink in coverLinks:
+            ET.SubElement(coverPageElement, "image", attrib={
+                "xlink:href": coverLink,
+                "alt": "Cover image"
+            })
+        self.result.append(coverPageElement)
 
     def GetResult(self) -> ET.Element:
         return self.result
