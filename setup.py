@@ -2,13 +2,14 @@ import setuptools
 from os import system
 from shutil import rmtree
 from sys import argv, exit
+from typing import Dict, Any
 
 
 with open("./README.md") as readmeFile:
     readme = readmeFile.read()
 
 with open("./FB2/__version__.py") as aboutFile:
-    about = {}
+    about: Dict[str, Any] = {}
     exec(aboutFile.read(), about)
 
 # 'setup.py publish' shortcut.
@@ -21,6 +22,10 @@ if argv[-1] == 'publish':
     system('twine upload --repository FB2 dist/*')
     exit()
 
+requires = [
+    'iso-639>=0.4.5'
+]
+
 setuptools.setup(name=about["__title__"],
                  version=about["__version__"],
                  author=about["__author__"],
@@ -31,4 +36,5 @@ setuptools.setup(name=about["__title__"],
                  url=about["__url__"],
                  packages=setuptools.find_packages(),
                  classifiers=about["__classifiers__"],
-                 python_requires='>=3.5')
+                 python_requires='>=3.5',
+                 install_requires=requires)

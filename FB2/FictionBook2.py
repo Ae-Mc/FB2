@@ -1,24 +1,17 @@
 from dataclasses import dataclass, field
-from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import List, Tuple, Union, Optional
 from uuid import uuid4
+
 from .FB2Builder import FB2Builder
+from .TitleInfo import TitleInfo
+from .Author import Author
 
 
 @dataclass
 class FictionBook2():
-    genres: List[str] = field(default_factory=list)
-    authors: List[str] = field(default_factory=list)
-    title: str = ""
-    annotation: Optional[str] = None
-    keywords: Optional[List[str]] = None
-    date: Optional[datetime] = None
-    coverPageImages: Optional[List[bytes]] = None
-    lang: str = "en"
-    srcLang: Optional[str] = None
-    translators: Optional[List[str]] = None
-    sequences: Optional[List[Tuple[str, int]]] = None
-    docAuthors: List[str] = field(default_factory=list)
+    titleInfo: TitleInfo = field(default_factory=TitleInfo)
+    sourceTitleInfo: Optional[TitleInfo] = None
+    docAuthors: List[Union[Author, str]] = field(default_factory=list)
     docId: str = str(uuid4())
     docVersion: str = "1.0"
     chapters: List[Tuple[str, List[str]]] = field(default_factory=list)
