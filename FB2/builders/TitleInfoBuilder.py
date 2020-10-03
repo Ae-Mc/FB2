@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from typing import Sequence, Union, Tuple
+from typing import Sequence, Union, Tuple, Optional
 from datetime import datetime
 from .BuildAuthorName import BuildAuthorName
 from ..constants import __FB2_LINK_PREFIX, GetLanguages
@@ -74,10 +74,10 @@ class TitleInfoBuilder:
     def AddKeywords(self, keywords: Sequence[str]) -> None:
         ET.SubElement(self.result, "keywords").text = ", ".join(keywords)
 
-    def AddDate(self, date: datetime, dateText: str = None) -> None:
+    def AddDate(self, date: Tuple[datetime, Optional[str]]) -> None:
         dateElement = ET.Element("date")
-        dateElement.attrib["value"] = date.strftime("%Y-%m-%d")
-        dateElement.text = dateText or date.strftime("%d.%m.%Y")
+        dateElement.attrib["value"] = date[0].strftime("%Y-%m-%d")
+        dateElement.text = date[1] or date[0].strftime("%d.%m.%Y")
         self.result.append(dateElement)
 
     def AddLang(self, lang: str) -> None:

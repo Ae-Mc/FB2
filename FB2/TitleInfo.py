@@ -12,7 +12,7 @@ class TitleInfo:
     title: str = ""
     annotation: Optional[str] = None
     keywords: Optional[List[str]] = None
-    date: Optional[datetime] = None
+    date: Optional[Tuple[datetime, Optional[str]]] = None
     coverPageImages: Optional[List[bytes]] = None
     lang: str = "en"
     srcLang: Optional[str] = None
