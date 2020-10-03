@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from .Author import Author
-from typing import List, Union, Optional, Tuple
+from typing import List, Union, Optional, Tuple, Sequence
 from datetime import datetime
 from uuid import uuid4
 import xml.etree.ElementTree as ET
@@ -16,5 +16,5 @@ class DocumentInfo:
     sourceAuthor: Optional[Union[Author, str]] = None
     id: str = str(uuid4())
     version: Decimal = Decimal('1.0')
-    history: Optional[Union[str, ET.Element]] = None
+    history: Optional[Union[str, Sequence[ET.Element]]] = None
     publisher: Optional[Union[Author, str]] = None
