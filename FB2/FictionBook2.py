@@ -1,19 +1,18 @@
 from dataclasses import dataclass, field
-from typing import List, Tuple, Union, Optional
-from uuid import uuid4
+from typing import List, Tuple, Optional
 
 from .FB2Builder import FB2Builder
 from .TitleInfo import TitleInfo
-from .Author import Author
+from .DocumentInfo import DocumentInfo
 
 
 @dataclass
-class FictionBook2():
+class FictionBook2:
+    stylesheets: Optional[List[str]] = None
     titleInfo: TitleInfo = field(default_factory=TitleInfo)
     sourceTitleInfo: Optional[TitleInfo] = None
-    docAuthors: List[Union[Author, str]] = field(default_factory=list)
-    docId: str = str(uuid4())
-    docVersion: str = "1.0"
+    documentInfo: DocumentInfo = field(default_factory=DocumentInfo)
+    customInfos: Optional[List[str]] = None
     chapters: List[Tuple[str, List[str]]] = field(default_factory=list)
 
     def write(self, filename: str):

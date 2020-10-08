@@ -7,9 +7,10 @@ from .Author import Author
 
 @dataclass
 class TitleInfo:
-    genres: List[str] = field(default_factory=list)
-    authors: List[Union[Author, str]] = field(default_factory=list)
-    title: str = ""
+    genres: List[str] = field(default_factory=lambda: ["Unrecognized"])
+    authors: List[Union[Author, str]] = field(
+        default_factory=lambda: [Author("Unknown author")])
+    title: str = "Untitled book"
     annotation: Optional[str] = None
     keywords: Optional[List[str]] = None
     date: Optional[Tuple[datetime, Optional[str]]] = None

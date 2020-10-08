@@ -19,7 +19,7 @@ if argv[-1] == 'publish':
     except Exception:
         pass
     system('python setup.py sdist bdist_wheel')
-    system('twine upload --repository FB2 dist/*')
+    system('twine upload --repository pypi dist/*')
     exit()
 
 requires = [

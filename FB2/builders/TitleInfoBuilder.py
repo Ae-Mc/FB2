@@ -24,26 +24,16 @@ class TitleInfoBuilder:
 
         self.reset(rootTag)
         if titleInfo:
-            if titleInfo.genres:
-                self.AddGenres(titleInfo.genres)
-            if titleInfo.authors:
-                self.AddAuthors(titleInfo.authors)
-            if titleInfo.title:
-                self.AddBookTitle(titleInfo.title)
-            if titleInfo.annotation:
-                self.AddAnnotation(titleInfo.annotation)
-            if titleInfo.keywords:
-                self.AddKeywords(titleInfo.keywords)
-            if titleInfo.date:
-                self.AddDate(titleInfo.date)
-            if titleInfo.lang:
-                self.AddLang(titleInfo.lang)
-            if titleInfo.srcLang:
-                self.AddSrcLang(titleInfo.srcLang)
-            if titleInfo.translators:
-                self.AddTranslators(titleInfo.translators)
-            if titleInfo.sequences:
-                self.AddSequences(titleInfo.sequences)
+            self.AddGenres(titleInfo.genres)
+            self.AddAuthors(titleInfo.authors)
+            self.AddBookTitle(titleInfo.title)
+            self.AddAnnotation(titleInfo.annotation)
+            self.AddKeywords(titleInfo.keywords)
+            self.AddDate(titleInfo.date)
+            self.AddLang(titleInfo.lang)
+            self.AddSrcLang(titleInfo.srcLang)
+            self.AddTranslators(titleInfo.translators)
+            self.AddSequences(titleInfo.sequences)
 
     def AddBookTitle(self, title: str):
         ET.SubElement(self.result, "book-title").text = title
@@ -61,64 +51,76 @@ class TitleInfoBuilder:
                 self.result.append(BuildAuthorName("author", author))
 
     def AddAnnotation(
-            self, annotation: Union[str, Sequence[ET.Element]]) -> None:
-        annotationElement = ET.Element("annotation")
-        if isinstance(annotation, str):
-            for paragraph in annotation.split('\n'):
-                ET.SubElement(annotationElement, "p").text = paragraph
-        else:
-            for element in annotation:
-                annotationElement.append(element)
-        self.result.append(annotationElement)
+        self,
+        annotation: Optional[Union[str, Sequence[ET.Element]]]
+    ) -> None:
+        if annotation:
+            annotationElement = ET.Element("annotation")
+            if isinstance(annotation, str):
+                for paragraph in annotation.split('\n'):
+                    ET.SubElement(annotationElement, "p").text = paragraph
+            else:
+                for element in annotation:
+                    annotationElement.append(element)
+            self.result.append(annotationElement)
 
-    def AddKeywords(self, keywords: Sequence[str]) -> None:
-        ET.SubElement(self.result, "keywords").text = ", ".join(keywords)
+    def AddKeywords(self, keywords: Optional[Sequence[str]]) -> None:
+        if keywords:
+            ET.SubElement(self.result, "keywords").text = ", ".join(keywords)
 
-    def AddDate(self, date: Tuple[datetime, Optional[str]]) -> None:
-        dateElement = ET.Element("date")
-        dateElement.attrib["value"] = date[0].strftime("%Y-%m-%d")
-        dateElement.text = date[1] or date[0].strftime("%d.%m.%Y")
-        self.result.append(dateElement)
+    def AddDate(self, date: Optional[Tuple[datetime, Optional[str]]]) -> None:
+        if date:
+            dateElement = ET.Element("date")
+            dateElement.attrib["value"] = date[0].strftime("%Y-%m-%d")
+            dateElement.text = date[1] or date[0].strftime("%d.%m.%Y")
+            self.result.append(dateElement)
 
     def AddLang(self, lang: str) -> None:
         if lang not in GetLanguages():
             raise ValueError(f"Unknown language {lang}")
         ET.SubElement(self.result, "lang").text = lang
 
-    def AddSrcLang(self, srcLang: str) -> None:
-        if srcLang not in GetLanguages():
-            raise ValueError(f"Unknown language {srcLang}")
-        ET.SubElement(self.result, "src-lang").text = srcLang
+    def AddSrcLang(self, srcLang: Optional[str]) -> None:
+        if srcLang:
+            if srcLang not in GetLanguages():
+                raise ValueError(f"Unknown language {srcLang}")
+            ET.SubElement(self.result, "src-lang").text = srcLang
 
     def AddTranslators(
-            self,
-            translators: Sequence[Union[str, ET.Element, Author]]) -> None:
-        for translator in translators:
-            if isinstance(translator, ET.Element):
-                self.result.append(translator)
-            else:
-                self.result.append(BuildAuthorName("translator", translator))
+        self,
+        translators: Optional[Sequence[Union[str, ET.Element, Author]]]
+    ) -> None:
+        if translators:
+            for translator in translators:
+                if isinstance(translator, ET.Element):
+                    self.result.append(translator)
+                else:
+                    self.result.append(
+                        BuildAuthorName("translator", translator))
 
     def AddSequences(
-            self,
-            sequences: Sequence[Union[Tuple[str, int], ET.Element]]) -> None:
-        for sequence in sequences:
-            if isinstance(sequence, ET.Element):
-                self.result.append(sequence)
-            else:
-                ET.SubElement(self.result, "sequence", attrib={
-                    "name": sequence[0],
-                    "number": str(sequence[1])
-                })
+        self,
+        sequences: Optional[Sequence[Union[Tuple[str, int], ET.Element]]]
+    ) -> None:
+        if sequences:
+            for sequence in sequences:
+                if isinstance(sequence, ET.Element):
+                    self.result.append(sequence)
+                else:
+                    ET.SubElement(self.result, "sequence", attrib={
+                        "name": sequence[0],
+                        "number": str(sequence[1])
+                    })
 
-    def AddCoverImages(self, coverLinks: Sequence[str]) -> None:
-        coverPageElement = ET.Element("coverpage")
-        for coverLink in coverLinks:
-            ET.SubElement(coverPageElement, "image", attrib={
-                f"{__FB2_LINK_PREFIX}:href": coverLink,
-                "alt": "Cover image"
-            })
-        self.result.append(coverPageElement)
+    def AddCoverImages(self, coverLinks: Optional[Sequence[str]]) -> None:
+        if coverLinks:
+            coverPageElement = ET.Element("coverpage")
+            for coverLink in coverLinks:
+                ET.SubElement(coverPageElement, "image", attrib={
+                    f"{__FB2_LINK_PREFIX}:href": coverLink,
+                    "alt": "Cover image"
+                })
+            self.result.append(coverPageElement)
 
     def GetResult(self) -> ET.Element:
         return self.result

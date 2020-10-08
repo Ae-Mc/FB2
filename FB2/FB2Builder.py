@@ -1,10 +1,9 @@
 import xml.etree.ElementTree as ET
 from base64 import b64encode
-from datetime import datetime
 from typing import List, Tuple
 from xml.dom import minidom
 
-from .builders import TitleInfoBuilder, BuildAuthorName
+from .builders import TitleInfoBuilder, DocumentInfoBuilder
 from .TitleInfo import TitleInfo
 
 try:
@@ -25,10 +24,22 @@ class FB2Builder:
             "xmlns": "http://www.gribuser.ru/xml/fictionbook/2.0",
             "xmlns:xlink": "http://www.w3.org/1999/xlink"
         })
+        self._AddStylesheets(fb2Tree)
+        self._AddCustomInfos(fb2Tree)
         self._AddDescription(fb2Tree)
         self._AddBody(fb2Tree)
         self._AddBinaries(fb2Tree)
         return fb2Tree
+
+    def _AddStylesheets(self, root: ET.Element) -> None:
+        if self.book.stylesheets:
+            for stylesheet in self.book.stylesheets:
+                ET.SubElement(root, "stylesheet").text = stylesheet
+
+    def _AddCustomInfos(self, root: ET.Element) -> None:
+        if self.book.customInfos:
+            for customInfo in self.book.customInfos:
+                ET.SubElement(root, "custom-info").text = customInfo
 
     def _AddDescription(self, root: ET.Element) -> None:
         description = ET.SubElement(root, "description")
@@ -49,16 +60,8 @@ class FB2Builder:
         description.append(builder.GetResult())
 
     def _AddDocumentInfo(self, description: ET.Element) -> None:
-        documentInfo = ET.SubElement(description, "document-info")
-        for author in self.book.docAuthors:
-            documentInfo.append(BuildAuthorName("author", author))
-        ET.SubElement(documentInfo, "program-used").text = (
-            "FB2creator by Ae-Mc")
-        dateElement = ET.SubElement(documentInfo, "date")
-        dateElement.text = datetime.now().strftime("%Y-%m-%d")
-        dateElement.attrib["value"] = datetime.now().strftime("%Y-%m-%d")
-        ET.SubElement(documentInfo, "id").text = self.book.docId
-        ET.SubElement(documentInfo, "version").text = self.book.docVersion
+        description.append(DocumentInfoBuilder(
+            documentInfo=self.book.documentInfo).GetResult())
 
     def _AddBody(self, root: ET.Element) -> None:
         if len(self.book.chapters):

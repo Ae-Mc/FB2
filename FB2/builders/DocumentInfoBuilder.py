@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
-from typing import Union, Sequence, Tuple
+from typing import Union, Sequence, Tuple, Optional
 from datetime import datetime
+from decimal import Decimal
 from ..Author import Author
 from ..DocumentInfo import DocumentInfo
 from .BuildAuthorName import BuildAuthorName
@@ -11,6 +12,16 @@ class DocumentInfoBuilder:
 
     def __init__(self, documentInfo: DocumentInfo = None):
         self.reset()
+        if documentInfo:
+            self.AddAuthors(documentInfo.authors)
+            self.AddProgramUsed(documentInfo.programUsed)
+            self.AddDate(documentInfo.date)
+            self.AddSourceUrl(documentInfo.sourceUrl)
+            self.AddSourceAuthor(documentInfo.sourceAuthor)
+            self.AddId(documentInfo.id)
+            self.AddVersion(documentInfo.version)
+            self.AddHistory(documentInfo.history)
+            self.AddPublisher(documentInfo.publisher)
 
     def AddAuthors(self,
                    authors: Sequence[Union[Author, str, ET.Element]]) -> None:
@@ -20,8 +31,9 @@ class DocumentInfoBuilder:
             else:
                 self.result.append(BuildAuthorName("author", author))
 
-    def AddProgramUsed(self, programUsed: str):
-        ET.SubElement(self.result, "program-used").text = programUsed
+    def AddProgramUsed(self, programUsed: Optional[str]) -> None:
+        if programUsed:
+            ET.SubElement(self.result, "program-used").text = programUsed
 
     def AddDate(self, date: Tuple[datetime, Optional[str]]) -> None:
         dateElement = ET.Element("date")
@@ -29,11 +41,36 @@ class DocumentInfoBuilder:
         dateElement.text = date[1] or date[0].strftime("%d.%m.%Y")
         self.result.append(dateElement)
 
-    def AddSourceUrl(self, sourceUrl: str):
-        ET.SubElement(self.result, "src-url").text = sourceUrl
+    def AddSourceUrl(self, sourceUrl: Optional[str]) -> None:
+        if sourceUrl:
+            ET.SubElement(self.result, "src-url").text = sourceUrl
 
-    def AddSourceAuthor(self, sourceAuthor: Union[Author, str]):
-        self.result.append(BuildAuthorName("src-ocr", sourceAuthor))
+    def AddSourceAuthor(self, sourceAuthor: Optional[Union[Author, str]]):
+        if sourceAuthor:
+            self.result.append(BuildAuthorName("src-ocr", sourceAuthor))
 
-    def reset(self):
+    def AddId(self, id: str) -> None:
+        ET.SubElement(self.result, "id").text = id
+
+    def AddVersion(self, version: Decimal) -> None:
+        ET.SubElement(self.result, "version").text = str(version)
+
+    def AddHistory(
+            self, history: Optional[Union[str, Sequence[ET.Element]]]) -> None:
+        if history:
+            if isinstance(history, str):
+                ET.SubElement(self.result, "history").text = history
+            else:
+                historyElement = ET.SubElement(self.result, "history")
+                for element in history:
+                    historyElement.append(element)
+
+    def AddPublisher(self, publisher: Optional[Union[Author, str]]) -> None:
+        if publisher:
+            self.result.append(BuildAuthorName("publisher", publisher))
+
+    def GetResult(self) -> ET.Element:
+        return self.result
+
+    def reset(self) -> None:
         self.result = ET.Element("document-info")
