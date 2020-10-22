@@ -14,13 +14,16 @@ from urllib import request
 book = FictionBook2()
 book.titleInfo.title = "Example book"
 book.titleInfo.annotation = "Small test book. Shows basics of FB2 library"
-book.titleInfo.authors = ["Ae_Mc"]
+book.titleInfo.authors = [Author(firstName="Alex",
+                                    middleName="Unknown",
+                                    nickname="Ae_Mc",
+                                    emails=["ae_mc@mail.ru"],
+                                    homePages=["ae-mc.ru"])]
 book.titleInfo.genres = ["sf", "sf_fantasy", "shortstory"]
 book.titleInfo.coverPageImages = [
     request.urlopen("https://picsum.photos/1080/1920").read()]
-book.documentInfo.authors = [Author(nickname="Ae_Mc",
-                                    emails=["ae_mc@mail.ru"],
-                                    homePages=["ae-mc.ru"])]
+book.titleInfo.sequences = [("Example books", 2)]
+book.documentInfo.authors = ["Ae Mc"]
 book.documentInfo.version = "1.1"
 book.chapters = [
     ("Introduction", [
