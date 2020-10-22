@@ -8,6 +8,16 @@ from .DocumentInfo import DocumentInfo
 
 @dataclass
 class FictionBook2:
+    """Represents fb2 book
+
+    Attributes:
+        stylesheets: optional css styles
+        titleInfo: book title information
+        sourceTitleInfo: source book title information (if exists)
+        documentInfo: document information
+        customInfos: free format additional information
+        chapters: list of chapters names and lists of paragraphs
+    """
     stylesheets: Optional[List[str]] = None
     titleInfo: TitleInfo = field(default_factory=TitleInfo)
     sourceTitleInfo: Optional[TitleInfo] = None

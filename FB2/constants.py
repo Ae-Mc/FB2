@@ -1,7 +1,7 @@
 from iso639 import languages as isoLanguages
 
 
-__FB2_LINK_PREFIX = "xlink"
+FB2_LINK_PREFIX = "xlink"
 
 
 def GetLanguages():

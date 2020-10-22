@@ -52,8 +52,8 @@ class DocumentInfoBuilder:
     def AddId(self, id: str) -> None:
         ET.SubElement(self.result, "id").text = id
 
-    def AddVersion(self, version: Decimal) -> None:
-        ET.SubElement(self.result, "version").text = str(version)
+    def AddVersion(self, version: Union[Decimal, str]) -> None:
+        ET.SubElement(self.result, "version").text = str(Decimal(version))
 
     def AddHistory(
             self, history: Optional[Union[str, Sequence[ET.Element]]]) -> None:

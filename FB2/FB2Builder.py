@@ -15,6 +15,7 @@ except ImportError:
 
 class FB2Builder:
     book: FictionBook2
+    """Transforms FictionBook2 to xml (fb2) format"""
 
     def __init__(self, book: FictionBook2):
         self.book = book
@@ -55,7 +56,7 @@ class FB2Builder:
                       description: ET.Element) -> None:
         builder = TitleInfoBuilder(rootTag=rootElement, titleInfo=titleInfo)
         if titleInfo.coverPageImages:
-            builder.AddCoverImages([f"{rootElement}-cover#{i}" for i in range(
+            builder.AddCoverImages([f"#{rootElement}-cover_{i}" for i in range(
                 len(titleInfo.coverPageImages))])
         description.append(builder.GetResult())
 
@@ -72,7 +73,8 @@ class FB2Builder:
     @staticmethod
     def BuildSectionFromChapter(chapter: Tuple[str, List[str]]) -> ET.Element:
         sectionElement = ET.Element("section")
-        ET.SubElement(sectionElement, "title").text = chapter[0]
+        title = ET.SubElement(sectionElement, "title")
+        ET.SubElement(title, "p").text = chapter[0]
         for paragraph in chapter[1]:
             ET.SubElement(sectionElement, "p").text = paragraph
         return sectionElement
@@ -82,7 +84,7 @@ class FB2Builder:
             for i, coverImage in enumerate(
                     self.book.titleInfo.coverPageImages):
                 self._AddBinary(
-                    root, f"title-info-cover#{i}", "image/jpeg", coverImage)
+                    root, f"title-info-cover_{i}", "image/jpeg", coverImage)
         if (self.book.sourceTitleInfo
                 and self.book.sourceTitleInfo.coverPageImages):
             for i, coverImage in enumerate(

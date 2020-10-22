@@ -22,9 +22,7 @@ if argv[-1] == 'publish':
     system('twine upload --repository pypi dist/*')
     exit()
 
-requires = [
-    'iso-639>=0.4.5'
-]
+requires = open("requirements.txt", 'r').read().split("\n")
 
 setuptools.setup(name=about["__title__"],
                  version=about["__version__"],

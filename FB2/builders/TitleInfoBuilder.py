@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 from typing import Sequence, Union, Tuple, Optional
 from datetime import datetime
 from .BuildAuthorName import BuildAuthorName
-from ..constants import __FB2_LINK_PREFIX, GetLanguages
+from ..constants import FB2_LINK_PREFIX, GetLanguages
 from ..Author import Author
 from ..TitleInfo import TitleInfo
 
@@ -117,7 +117,7 @@ class TitleInfoBuilder:
             coverPageElement = ET.Element("coverpage")
             for coverLink in coverLinks:
                 ET.SubElement(coverPageElement, "image", attrib={
-                    f"{__FB2_LINK_PREFIX}:href": coverLink,
+                    "{}:href".format(FB2_LINK_PREFIX): coverLink,
                     "alt": "Cover image"
                 })
             self.result.append(coverPageElement)
