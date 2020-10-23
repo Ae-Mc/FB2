@@ -62,14 +62,16 @@ class FB2Builder:
     def _AddBody(self, root: ET.Element) -> None:
         if len(self.book.chapters):
             bodyElement = ET.SubElement(root, "body")
+            ET.SubElement(ET.SubElement(bodyElement, "title"),
+                          "p").text = self.book.titleInfo.title
             for chapter in self.book.chapters:
                 bodyElement.append(self.BuildSectionFromChapter(chapter))
 
     @staticmethod
     def BuildSectionFromChapter(chapter: Tuple[str, List[str]]) -> ET.Element:
         sectionElement = ET.Element("section")
-        title = ET.SubElement(sectionElement, "title")
-        ET.SubElement(title, "p").text = chapter[0]
+        ET.SubElement(ET.SubElement(sectionElement, "title"),
+                      "p").text = chapter[0]
         for paragraph in chapter[1]:
             ET.SubElement(sectionElement, "p").text = paragraph
         return sectionElement
@@ -84,7 +86,8 @@ class FB2Builder:
                 and self.book.sourceTitleInfo.coverPageImages):
             for i, coverImage in enumerate(
                     self.book.sourceTitleInfo.coverPageImages):
-                self._AddBinary(root,
+                self._AddBinary(
+                    root,
                                 f"src-title-info-cover#{i}",
                                 "image/jpeg",
                                 coverImage)
@@ -94,9 +97,9 @@ class FB2Builder:
                    id: str,
                    contentType: str,
                    data: bytes) -> None:
-        binaryElement = ET.SubElement(root, "binary")
-        binaryElement.attrib = {"id": id, "content-type": contentType}
-        binaryElement.text = b64encode(data).decode("utf-8")
+        ET.SubElement(
+            root, "binary", {"id": id, "content-type": contentType}
+        ).text = b64encode(data).decode("utf-8")
 
     @staticmethod
     def _PrettifyXml(element: ET.Element) -> str:

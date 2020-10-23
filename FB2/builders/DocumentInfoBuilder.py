@@ -36,10 +36,9 @@ class DocumentInfoBuilder:
             ET.SubElement(self.result, "program-used").text = programUsed
 
     def AddDate(self, date: Tuple[datetime, Optional[str]]) -> None:
-        dateElement = ET.Element("date")
-        dateElement.attrib["value"] = date[0].strftime("%Y-%m-%d")
-        dateElement.text = date[1] or date[0].strftime("%d.%m.%Y")
-        self.result.append(dateElement)
+        ET.SubElement(
+            self.result, "date", {"value": date[0].strftime("%Y-%m-%d")}
+        ).text = date[1] or date[0].strftime("%d.%m.%Y")
 
     def AddSourceUrl(self, sourceUrl: Optional[str]) -> None:
         if sourceUrl:

@@ -70,10 +70,9 @@ class TitleInfoBuilder:
 
     def AddDate(self, date: Optional[Tuple[datetime, Optional[str]]]) -> None:
         if date:
-            dateElement = ET.Element("date")
-            dateElement.attrib["value"] = date[0].strftime("%Y-%m-%d")
-            dateElement.text = date[1] or date[0].strftime("%d.%m.%Y")
-            self.result.append(dateElement)
+            ET.SubElement(
+                self.result, "date", {"value": date[0].strftime("%Y-%m-%d")}
+            ).text = date[1] or date[0].strftime("%d.%m.%Y")
 
     def AddLang(self, lang: str) -> None:
         if lang not in GetLanguages():
