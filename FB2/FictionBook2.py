@@ -1,13 +1,11 @@
-from dataclasses import dataclass, field
-from typing import List, Tuple, Optional
+from dataclasses import dataclass
 
 from .FB2Builder import FB2Builder
-from .TitleInfo import TitleInfo
-from .DocumentInfo import DocumentInfo
+from .FictionBook2dataclass import FictionBook2dataclass
 
 
 @dataclass
-class FictionBook2:
+class FictionBook2(FictionBook2dataclass):
     """Represents fb2 book
 
     Attributes:
@@ -17,13 +15,10 @@ class FictionBook2:
         documentInfo: document information
         customInfos: free format additional information
         chapters: list of chapters names and lists of paragraphs
+
+    Methods:
+        write: writes to fb2 file
     """
-    stylesheets: Optional[List[str]] = None
-    titleInfo: TitleInfo = field(default_factory=TitleInfo)
-    sourceTitleInfo: Optional[TitleInfo] = None
-    documentInfo: DocumentInfo = field(default_factory=DocumentInfo)
-    customInfos: Optional[List[str]] = None
-    chapters: List[Tuple[str, List[str]]] = field(default_factory=list)
 
     def write(self, filename: str):
         with open(filename, 'w') as f:

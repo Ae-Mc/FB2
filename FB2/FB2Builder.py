@@ -5,19 +5,14 @@ from xml.dom import minidom
 
 from .builders import TitleInfoBuilder, DocumentInfoBuilder
 from .TitleInfo import TitleInfo
-
-try:
-    from .FictionBook2 import FictionBook2
-except ImportError:
-    import sys
-    FictionBook2 = sys.modules[__package__ + '.FictionBook2']  # type: ignore
+from .FictionBook2dataclass import FictionBook2dataclass
 
 
 class FB2Builder:
-    book: FictionBook2
+    book: FictionBook2dataclass
     """Transforms FictionBook2 to xml (fb2) format"""
 
-    def __init__(self, book: FictionBook2):
+    def __init__(self, book: FictionBook2dataclass):
         self.book = book
 
     def GetFB2(self) -> ET.Element:
