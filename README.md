@@ -1,5 +1,7 @@
 # FB2
 
+[![PyPI](https://img.shields.io/pypi/v/fb2?color=orange)](https://pypi.org/project/fb2)
+
 Python package for working with FictionBook2
 
 ## Usage example
