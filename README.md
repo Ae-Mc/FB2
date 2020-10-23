@@ -1,7 +1,5 @@
 # FB2
 
-## Description
-
 Python package for working with FictionBook2
 
 ## Usage example
