@@ -14,7 +14,8 @@ class FictionBook2(FictionBook2dataclass):
         sourceTitleInfo: source book title information (if exists)
         documentInfo: document information
         customInfos: free format additional information
-        chapters: list of chapters names and lists of paragraphs
+        chapters: list of chapters names and lists of paragraphs or Elements
+            with paragraphs or lists of Elements
 
     Methods:
         write: writes to fb2 file

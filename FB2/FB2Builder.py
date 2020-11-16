@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 from base64 import b64encode
-from typing import List, Tuple
+from typing import List, Tuple, Union
 from xml.dom import minidom
 
 from .builders import TitleInfoBuilder, DocumentInfoBuilder
@@ -68,12 +68,22 @@ class FB2Builder:
                 bodyElement.append(self.BuildSectionFromChapter(chapter))
 
     @staticmethod
-    def BuildSectionFromChapter(chapter: Tuple[str, List[str]]) -> ET.Element:
+    def BuildSectionFromChapter(
+            chapter: Tuple[str, Union[
+                ET.Element, List[str], List[ET.Element]]]) -> ET.Element:
         sectionElement = ET.Element("section")
         ET.SubElement(ET.SubElement(sectionElement, "title"),
                       "p").text = chapter[0]
-        for paragraph in chapter[1]:
-            ET.SubElement(sectionElement, "p").text = paragraph
+        if(isinstance(chapter[1], list)
+           and all([isinstance(p, str) for p in chapter[1]])):
+            paragraph: str
+            for paragraph in chapter[1]:  # type: ignore
+                ET.SubElement(sectionElement, "p").text = paragraph
+        else:
+            paragraphElement: ET.Element
+            paragraphs: List[ET.Element] = list(chapter[1])  # type: ignore
+            for paragraphElement in paragraphs:
+                sectionElement.append(paragraphElement)
         return sectionElement
 
     def _AddBinaries(self, root: ET.Element) -> None:
@@ -88,9 +98,9 @@ class FB2Builder:
                     self.book.sourceTitleInfo.coverPageImages):
                 self._AddBinary(
                     root,
-                                f"src-title-info-cover#{i}",
-                                "image/jpeg",
-                                coverImage)
+                    f"src-title-info-cover#{i}",
+                    "image/jpeg",
+                    coverImage)
 
     def _AddBinary(self,
                    root: ET.Element,
