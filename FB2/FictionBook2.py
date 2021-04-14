@@ -22,7 +22,7 @@ class FictionBook2(FictionBook2dataclass):
     """
 
     def write(self, filename: str):
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf-8') as f:
             f.write(str(self))
 
     def __str__(self) -> str:
