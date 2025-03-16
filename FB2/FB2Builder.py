@@ -16,10 +16,13 @@ class FB2Builder:
         self.book = book
 
     def GetFB2(self) -> ET.Element:
-        fb2Tree = ET.Element("FictionBook", attrib={
-            "xmlns": "http://www.gribuser.ru/xml/fictionbook/2.0",
-            "xmlns:xlink": "http://www.w3.org/1999/xlink"
-        })
+        fb2Tree = ET.Element(
+            "FictionBook",
+            attrib={
+                "xmlns": "http://www.gribuser.ru/xml/fictionbook/2.0",
+                "xmlns:xlink": "http://www.w3.org/1999/xlink",
+            },
+        )
         self._AddStylesheets(fb2Tree)
         self._AddCustomInfos(fb2Tree)
         self._AddDescription(fb2Tree)
@@ -41,41 +44,45 @@ class FB2Builder:
         description = ET.SubElement(root, "description")
         self._AddTitleInfo("title-info", self.book.titleInfo, description)
         if self.book.sourceTitleInfo is not None:
-            self._AddTitleInfo(
-                "src-title-info", self.book.sourceTitleInfo, description)
+            self._AddTitleInfo("src-title-info", self.book.sourceTitleInfo, description)
         self._AddDocumentInfo(description)
 
-    def _AddTitleInfo(self,
-                      rootElement: str,
-                      titleInfo: TitleInfo,
-                      description: ET.Element) -> None:
+    def _AddTitleInfo(
+        self, rootElement: str, titleInfo: TitleInfo, description: ET.Element
+    ) -> None:
         builder = TitleInfoBuilder(rootTag=rootElement, titleInfo=titleInfo)
         if titleInfo.coverPageImages:
-            builder.AddCoverImages([f"#{rootElement}-cover_{i}" for i in range(
-                len(titleInfo.coverPageImages))])
+            builder.AddCoverImages(
+                [
+                    f"#{rootElement}-cover_{i}"
+                    for i in range(len(titleInfo.coverPageImages))
+                ]
+            )
         description.append(builder.GetResult())
 
     def _AddDocumentInfo(self, description: ET.Element) -> None:
-        description.append(DocumentInfoBuilder(
-            documentInfo=self.book.documentInfo).GetResult())
+        description.append(
+            DocumentInfoBuilder(documentInfo=self.book.documentInfo).GetResult()
+        )
 
     def _AddBody(self, root: ET.Element) -> None:
         if len(self.book.chapters):
             bodyElement = ET.SubElement(root, "body")
-            ET.SubElement(ET.SubElement(bodyElement, "title"),
-                          "p").text = self.book.titleInfo.title
+            ET.SubElement(
+                ET.SubElement(bodyElement, "title"), "p"
+            ).text = self.book.titleInfo.title
             for chapter in self.book.chapters:
                 bodyElement.append(self.BuildSectionFromChapter(chapter))
 
     @staticmethod
     def BuildSectionFromChapter(
-            chapter: Tuple[str, Union[
-                ET.Element, List[str], List[ET.Element]]]) -> ET.Element:
+        chapter: Tuple[str, Union[ET.Element, List[str], List[ET.Element]]],
+    ) -> ET.Element:
         sectionElement = ET.Element("section")
-        ET.SubElement(ET.SubElement(sectionElement, "title"),
-                      "p").text = chapter[0]
-        if(isinstance(chapter[1], list)
-           and all([isinstance(p, str) for p in chapter[1]])):
+        ET.SubElement(ET.SubElement(sectionElement, "title"), "p").text = chapter[0]
+        if isinstance(chapter[1], list) and all(
+            [isinstance(p, str) for p in chapter[1]]
+        ):
             paragraph: str
             for paragraph in chapter[1]:  # type: ignore
                 ET.SubElement(sectionElement, "p").text = paragraph
@@ -88,25 +95,20 @@ class FB2Builder:
 
     def _AddBinaries(self, root: ET.Element) -> None:
         if self.book.titleInfo.coverPageImages is not None:
-            for i, coverImage in enumerate(
-                    self.book.titleInfo.coverPageImages):
+            for i, coverImage in enumerate(self.book.titleInfo.coverPageImages):
+                self._AddBinary(root, f"title-info-cover_{i}", "image/jpeg", coverImage)
+        if self.book.sourceTitleInfo and self.book.sourceTitleInfo.coverPageImages:
+            for i, coverImage in enumerate(self.book.sourceTitleInfo.coverPageImages):
                 self._AddBinary(
-                    root, f"title-info-cover_{i}", "image/jpeg", coverImage)
-        if (self.book.sourceTitleInfo
-                and self.book.sourceTitleInfo.coverPageImages):
-            for i, coverImage in enumerate(
-                    self.book.sourceTitleInfo.coverPageImages):
-                self._AddBinary(
-                    root,
-                    f"src-title-info-cover#{i}",
-                    "image/jpeg",
-                    coverImage)
+                    root, f"src-title-info-cover#{i}", "image/jpeg", coverImage
+                )
+        if len(self.book.images) > 0:
+            for image in self.book.images:
+                self._AddBinary(root, image.uid, image.media_type, image.content)
 
-    def _AddBinary(self,
-                   root: ET.Element,
-                   id: str,
-                   contentType: str,
-                   data: bytes) -> None:
+    def _AddBinary(
+        self, root: ET.Element, id: str, contentType: str, data: bytes
+    ) -> None:
         ET.SubElement(
             root, "binary", {"id": id, "content-type": contentType}
         ).text = b64encode(data).decode("utf-8")
