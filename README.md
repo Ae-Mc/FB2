@@ -7,7 +7,7 @@ Python package for working with FictionBook2
 ## Usage example
 
 ```python
-from FB2 import FictionBook2, Author
+from FB2 import FictionBook2, Author, Image
 from urllib import request
 
 
@@ -33,6 +33,7 @@ book.chapters = [
         "Introduction chapter first paragraph",
         "Introduction chapter second paragraph"])]
 book.chapters.append(("2. Chapter two. Empty", []))
+book.images.append(Image(uid="image_uid", media_type="image/jpeg", content=image_bytes_data))
 book.write("ExampleBook.fb2")
 ```
 
