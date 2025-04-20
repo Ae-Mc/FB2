@@ -3,9 +3,10 @@ from base64 import b64encode
 from typing import List, Tuple, Union
 from xml.dom import minidom
 
-from .builders import TitleInfoBuilder, DocumentInfoBuilder
-from .TitleInfo import TitleInfo
+from .builders import DocumentInfoBuilder, TitleInfoBuilder
 from .FictionBook2dataclass import FictionBook2dataclass
+from .Image import Image
+from .TitleInfo import TitleInfo
 
 
 class FB2Builder:
@@ -72,25 +73,37 @@ class FB2Builder:
                 ET.SubElement(bodyElement, "title"), "p"
             ).text = self.book.titleInfo.title
             for chapter in self.book.chapters:
-                bodyElement.append(self.BuildSectionFromChapter(chapter))
+                bodyElement.append(self._BuildSectionFromChapter(chapter))
 
-    @staticmethod
-    def BuildSectionFromChapter(
-        chapter: Tuple[str, Union[ET.Element, List[str], List[ET.Element]]],
+    def _BuildSectionFromChapter(
+        self,
+        chapter: Tuple[str, List[Union[str, Image, ET.Element]]],
     ) -> ET.Element:
         sectionElement = ET.Element("section")
         ET.SubElement(ET.SubElement(sectionElement, "title"), "p").text = chapter[0]
-        if isinstance(chapter[1], list) and all(
-            [isinstance(p, str) for p in chapter[1]]
-        ):
-            paragraph: str
-            for paragraph in chapter[1]:  # type: ignore
-                ET.SubElement(sectionElement, "p").text = paragraph
+        if isinstance(chapter[1], list):
+            for element in chapter[1]:
+                if isinstance(element, str):
+                    ET.SubElement(sectionElement, "p").text = element
+                elif isinstance(element, Image):
+                    self.book.images.append(element)
+                    ET.SubElement(
+                        sectionElement,
+                        "image",
+                        attrib={"xlink:href": f"#{element.uid}"},
+                    )
+                elif isinstance(element, ET.Element):
+                    sectionElement.append(element)
+                else:
+                    raise ValueError(
+                        "Unknown section subelement type (supported: str, FB2.Image,"
+                        f" xml.etree.ElementTree.Element): {type(element)}"
+                    )
         else:
-            paragraphElement: ET.Element
-            paragraphs: List[ET.Element] = list(chapter[1])  # type: ignore
-            for paragraphElement in paragraphs:
-                sectionElement.append(paragraphElement)
+            raise ValueError(
+                "Wrong chapter structure: second element of chapter tuple must be list!"
+            )
+
         return sectionElement
 
     def _AddBinaries(self, root: ET.Element) -> None:
@@ -102,9 +115,8 @@ class FB2Builder:
                 self._AddBinary(
                     root, f"src-title-info-cover#{i}", "image/jpeg", coverImage
                 )
-        if len(self.book.images) > 0:
-            for image in self.book.images:
-                self._AddBinary(root, image.uid, image.media_type, image.content)
+        for image in self.book.images:
+            self._AddBinary(root, image.uid, image.media_type, image.content)
 
     def _AddBinary(
         self, root: ET.Element, id: str, contentType: str, data: bytes
