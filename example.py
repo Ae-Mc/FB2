@@ -1,12 +1,3 @@
-# FB2
-
-[![PyPI](https://img.shields.io/pypi/v/fb2?color=orange)](https://pypi.org/project/fb2)
-
-Python package for working with FictionBook2
-
-## Usage example
-
-```python
 from urllib import request
 
 from FB2 import Author, FictionBook2, Image
@@ -54,12 +45,3 @@ book.chapters = [
 ]
 book.chapters.append(("2. Chapter two. Empty", []))
 book.write("ExampleBook.fb2")
-```
-
-## Requirements
-
-- iso-639 package
-
-## Installation
-
-- From pip: `pip install fb2`
