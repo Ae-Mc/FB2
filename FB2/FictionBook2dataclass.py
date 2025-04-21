@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
-from typing import List, Optional, Tuple, Union
-from xml.etree import ElementTree as ET
+from typing import List, Optional
+
+from FB2.Chapter import BaseChapter
 
 from .DocumentInfo import DocumentInfo
 from .Image import Image
@@ -27,7 +28,5 @@ class FictionBook2dataclass:
     sourceTitleInfo: Optional[TitleInfo] = None
     documentInfo: DocumentInfo = field(default_factory=DocumentInfo)
     customInfos: Optional[List[str]] = None
-    chapters: List[Tuple[str, List[Union[str, Image, ET.Element]]]] = field(
-        default_factory=list
-    )
+    chapters: List[BaseChapter] = field(default_factory=list)
     images: list[Image] = field(default_factory=list)

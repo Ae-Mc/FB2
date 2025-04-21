@@ -1,7 +1,8 @@
 import xml.etree.ElementTree as ET
 from base64 import b64encode
-from typing import List, Tuple, Union
 from xml.dom import minidom
+
+from FB2.Chapter import BaseChapter, ChapterWithSubchapters, SimpleChapter
 
 from .builders import DocumentInfoBuilder, TitleInfoBuilder
 from .FictionBook2dataclass import FictionBook2dataclass
@@ -65,17 +66,43 @@ class FB2Builder:
             ET.SubElement(
                 ET.SubElement(bodyElement, "title"), "p"
             ).text = self.book.titleInfo.title
+            if not all(
+                [isinstance(chapter, BaseChapter) for chapter in self.book.chapters]
+            ):
+                raise ValueError(
+                    "All chapters must be derived from BaseChapter (SimpleChapter or ChapterWithSubchapters)."
+                )
             for chapter in self.book.chapters:
                 bodyElement.append(self._BuildSectionFromChapter(chapter))
 
     def _BuildSectionFromChapter(
         self,
-        chapter: Tuple[str, List[Union[str, Image, ET.Element]]],
+        chapter: BaseChapter,
     ) -> ET.Element:
         sectionElement = ET.Element("section")
-        ET.SubElement(ET.SubElement(sectionElement, "title"), "p").text = chapter[0]
-        if isinstance(chapter[1], list):
-            for element in chapter[1]:
+        if isinstance(chapter.title, str):
+            ET.SubElement(
+                ET.SubElement(sectionElement, "title"), "p"
+            ).text = chapter.title
+        else:
+            sectionElement.append(chapter.title)
+        if chapter.image:
+            ET.SubElement(
+                sectionElement,
+                "image",
+                attrib={"xlink:href": f"#{chapter.image.uid}"},
+            )
+            self.book.images.append(chapter.image)
+        if chapter.epigraph:
+            epigraph = ET.SubElement(sectionElement, "epigraph")
+            for element in chapter.epigraph:
+                ET.SubElement(epigraph, "p").text = element
+        if chapter.annotation:
+            annotation = ET.SubElement(sectionElement, "annotation")
+            for element in chapter.annotation:
+                ET.SubElement(annotation, "p").text = element
+        if isinstance(chapter, SimpleChapter):
+            for element in chapter.content:
                 if isinstance(element, str):
                     ET.SubElement(sectionElement, "p").text = element
                 elif isinstance(element, Image):
@@ -92,6 +119,9 @@ class FB2Builder:
                         "Unknown section subelement type (supported: str, FB2.Image,"
                         f" xml.etree.ElementTree.Element): {type(element)}"
                     )
+        elif isinstance(chapter, ChapterWithSubchapters):
+            for subchapter in chapter.subchapters:
+                sectionElement.append(self._BuildSectionFromChapter(subchapter))
         else:
             raise ValueError(
                 "Wrong chapter structure: second element of chapter tuple must be list!"

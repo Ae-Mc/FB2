@@ -1,5 +1,5 @@
 __title__ = "FB2"
-__version__ = "0.1.8"
+__version__ = "0.2.0"
 __author__ = "Ae-Mc"
 __author_email__ = "ae_mc@mail.ru"
 __description__ = "A small package for working with FB2 files"

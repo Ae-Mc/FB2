@@ -1,4 +1,5 @@
 from .Author import Author
+from .Chapter import BaseChapter, ChapterWithSubchapters, SimpleChapter
 from .DocumentInfo import DocumentInfo
 from .FictionBook2 import FictionBook2
 from .Image import Image
@@ -10,4 +11,7 @@ __all__ = (
     FictionBook2,
     Image,
     TitleInfo,
+    BaseChapter,
+    SimpleChapter,
+    ChapterWithSubchapters,
 )
