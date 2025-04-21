@@ -52,13 +52,6 @@ class FB2Builder:
         self, rootElement: str, titleInfo: TitleInfo, description: ET.Element
     ) -> None:
         builder = TitleInfoBuilder(rootTag=rootElement, titleInfo=titleInfo)
-        if titleInfo.coverPageImages:
-            builder.AddCoverImages(
-                [
-                    f"#{rootElement}-cover_{i}"
-                    for i in range(len(titleInfo.coverPageImages))
-                ]
-            )
         description.append(builder.GetResult())
 
     def _AddDocumentInfo(self, description: ET.Element) -> None:
@@ -108,12 +101,14 @@ class FB2Builder:
 
     def _AddBinaries(self, root: ET.Element) -> None:
         if self.book.titleInfo.coverPageImages is not None:
-            for i, coverImage in enumerate(self.book.titleInfo.coverPageImages):
-                self._AddBinary(root, f"title-info-cover_{i}", "image/jpeg", coverImage)
-        if self.book.sourceTitleInfo and self.book.sourceTitleInfo.coverPageImages:
-            for i, coverImage in enumerate(self.book.sourceTitleInfo.coverPageImages):
+            for coverImage in self.book.titleInfo.coverPageImages:
                 self._AddBinary(
-                    root, f"src-title-info-cover#{i}", "image/jpeg", coverImage
+                    root, coverImage.uid, coverImage.media_type, coverImage.content
+                )
+        if self.book.sourceTitleInfo and self.book.sourceTitleInfo.coverPageImages:
+            for coverImage in self.book.sourceTitleInfo.coverPageImages:
+                self._AddBinary(
+                    root, coverImage.uid, coverImage.media_type, coverImage.content
                 )
         for image in self.book.images:
             self._AddBinary(root, image.uid, image.media_type, image.content)

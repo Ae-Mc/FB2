@@ -1,19 +1,19 @@
 import xml.etree.ElementTree as ET
-from typing import Sequence, Union, Tuple, Optional
 from datetime import datetime
-from .BuildAuthorName import BuildAuthorName
-from ..constants import FB2_LINK_PREFIX, GetLanguages
+from typing import List, Optional, Sequence, Tuple, Union
+
 from ..Author import Author
+from ..constants import FB2_LINK_PREFIX, GetLanguages
+from ..Image import Image
 from ..TitleInfo import TitleInfo
+from .BuildAuthorName import BuildAuthorName
 
 
 class TitleInfoBuilder:
     result: ET.Element
 
-    def __init__(self,
-                 rootTag: str = "title-info",
-                 titleInfo: TitleInfo = None):
-        """ Calls reset() method and, if titleInfo is set, adds all fields of
+    def __init__(self, rootTag: str = "title-info", titleInfo: TitleInfo = None):
+        """Calls reset() method and, if titleInfo is set, adds all fields of
         titleInfo, except coverPageImages.
 
         Args:
@@ -34,6 +34,7 @@ class TitleInfoBuilder:
             self.AddSrcLang(titleInfo.srcLang)
             self.AddTranslators(titleInfo.translators)
             self.AddSequences(titleInfo.sequences)
+            self.AddCoverImages(titleInfo.coverPageImages)
 
     def AddBookTitle(self, title: str):
         ET.SubElement(self.result, "book-title").text = title
@@ -42,8 +43,7 @@ class TitleInfoBuilder:
         for genre in genres:
             ET.SubElement(self.result, "genre").text = genre
 
-    def AddAuthors(self,
-                   authors: Sequence[Union[Author, str, ET.Element]]) -> None:
+    def AddAuthors(self, authors: Sequence[Union[Author, str, ET.Element]]) -> None:
         for author in authors:
             if isinstance(author, ET.Element):
                 self.result.append(author)
@@ -51,13 +51,12 @@ class TitleInfoBuilder:
                 self.result.append(BuildAuthorName("author", author))
 
     def AddAnnotation(
-        self,
-        annotation: Optional[Union[str, Sequence[ET.Element]]]
+        self, annotation: Optional[Union[str, Sequence[ET.Element]]]
     ) -> None:
         if annotation:
             annotationElement = ET.Element("annotation")
             if isinstance(annotation, str):
-                for paragraph in annotation.split('\n'):
+                for paragraph in annotation.split("\n"):
                     ET.SubElement(annotationElement, "p").text = paragraph
             else:
                 for element in annotation:
@@ -86,39 +85,41 @@ class TitleInfoBuilder:
             ET.SubElement(self.result, "src-lang").text = srcLang
 
     def AddTranslators(
-        self,
-        translators: Optional[Sequence[Union[str, ET.Element, Author]]]
+        self, translators: Optional[Sequence[Union[str, ET.Element, Author]]]
     ) -> None:
         if translators:
             for translator in translators:
                 if isinstance(translator, ET.Element):
                     self.result.append(translator)
                 else:
-                    self.result.append(
-                        BuildAuthorName("translator", translator))
+                    self.result.append(BuildAuthorName("translator", translator))
 
     def AddSequences(
-        self,
-        sequences: Optional[Sequence[Union[Tuple[str, int], ET.Element]]]
+        self, sequences: Optional[Sequence[Union[Tuple[str, int], ET.Element]]]
     ) -> None:
         if sequences:
             for sequence in sequences:
                 if isinstance(sequence, ET.Element):
                     self.result.append(sequence)
                 else:
-                    ET.SubElement(self.result, "sequence", attrib={
-                        "name": sequence[0],
-                        "number": str(sequence[1])
-                    })
+                    ET.SubElement(
+                        self.result,
+                        "sequence",
+                        attrib={"name": sequence[0], "number": str(sequence[1])},
+                    )
 
-    def AddCoverImages(self, coverLinks: Optional[Sequence[str]]) -> None:
-        if coverLinks:
+    def AddCoverImages(self, images: Optional[List[Image]]) -> None:
+        if images is not None:
             coverPageElement = ET.Element("coverpage")
-            for coverLink in coverLinks:
-                ET.SubElement(coverPageElement, "image", attrib={
-                    "{}:href".format(FB2_LINK_PREFIX): coverLink,
-                    "alt": "Cover image"
-                })
+            for i, image in enumerate(images):
+                ET.SubElement(
+                    coverPageElement,
+                    "image",
+                    attrib={
+                        f"{FB2_LINK_PREFIX}:href": f"#{image.uid}",
+                        "alt": f"Cover image {i}",
+                    },
+                )
             self.result.append(coverPageElement)
 
     def GetResult(self) -> ET.Element:

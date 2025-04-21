@@ -1,12 +1,13 @@
 import xml.etree.ElementTree as ET
 from typing import Union
+
 from ..Author import Author  # type: ignore
 
 
 def BuildAuthorName(rootTag: str, author: Union[Author, str]) -> ET.Element:
     rootElement = ET.Element(rootTag)
     if isinstance(author, str):
-        authorNameParts = author.split(' ')
+        authorNameParts = author.split(" ")
         if len(authorNameParts) == 1:
             ET.SubElement(rootElement, "nickname").text = authorNameParts[0]
         elif len(authorNameParts) == 2:
