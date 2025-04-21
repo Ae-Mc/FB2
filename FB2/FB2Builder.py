@@ -3,6 +3,7 @@ from base64 import b64encode
 from xml.dom import minidom
 
 from FB2.Chapter import BaseChapter, ChapterWithSubchapters, SimpleChapter
+from FB2.constants import FB2_LINK_PREFIX
 
 from .builders import DocumentInfoBuilder, TitleInfoBuilder
 from .FictionBook2dataclass import FictionBook2dataclass
@@ -90,7 +91,7 @@ class FB2Builder:
             ET.SubElement(
                 sectionElement,
                 "image",
-                attrib={"xlink:href": f"#{chapter.image.uid}"},
+                attrib={f"{FB2_LINK_PREFIX}:href": f"#{chapter.image.uid}"},
             )
             self.book.images.append(chapter.image)
         if chapter.epigraph:
@@ -110,7 +111,7 @@ class FB2Builder:
                     ET.SubElement(
                         sectionElement,
                         "image",
-                        attrib={"xlink:href": f"#{element.uid}"},
+                        attrib={f"{FB2_LINK_PREFIX}:href": f"#{element.uid}"},
                     )
                 elif isinstance(element, ET.Element):
                     sectionElement.append(element)
