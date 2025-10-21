@@ -41,14 +41,14 @@ book.documentInfo.version = "1.1"
 
 book.chapters = [
     SimpleChapter(
-        "Introduction",
+        title="Introduction",
         content=[
             "Introduction chapter first paragraph",
             "Introduction chapter second paragraph",
         ],
     ),
     SimpleChapter(
-        "1. Chapter one. FB2 format history",
+        title="1. Chapter one. FB2 format history",
         content=[
             "Introduction chapter first paragraph",
             "Introduction chapter second paragraph",
@@ -99,7 +99,7 @@ book.chapters.append(
                 ],
             ),
             ChapterWithSubchapters(
-                "Subchapter 2.3",
+                title="Subchapter 2.3",
                 subchapters=[
                     SimpleChapter(
                         title="Subsubchapter 2.3.1",
@@ -121,14 +121,14 @@ book.chapters.append(
     ),
 )
 
-book.chapters.append(SimpleChapter("3. Chapter three. Empty", []))
+book.chapters.append(SimpleChapter(title="3. Chapter three. Empty"))
 book.write("ExampleBook.fb2")
 ```
 
 ## Requirements
 
-- iso-639 package
-- Python 3.7+
+- iso639-lang package
+- Python 3.10+
 
 ## Installation
 

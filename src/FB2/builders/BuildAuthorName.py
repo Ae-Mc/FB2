@@ -1,10 +1,9 @@
 import xml.etree.ElementTree as ET
-from typing import Union
 
-from ..Author import Author  # type: ignore
+from FB2 import Author
 
 
-def BuildAuthorName(rootTag: str, author: Union[Author, str]) -> ET.Element:
+def BuildAuthorName(rootTag: str, author: Author | str) -> ET.Element:
     rootElement = ET.Element(rootTag)
     if isinstance(author, str):
         authorNameParts = author.split(" ")

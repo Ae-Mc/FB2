@@ -1,26 +1,18 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "FB2"
-version = "0.2.1"
-requires-python = ">=3.7"
+version = "0.3.0b1"
+requires-python = ">=3.10"
 authors = [{ name = "Ae-Mc", email = "ae_mc@mail.ru" }]
 description = "A small package for working with FB2 files"
-dependencies = ["iso-639 >= 0.4.5, == 0.4.*"]
+dependencies = ["iso639-lang>=2.6.3", "pydantic>=2.12.3"]
 readme = "README.md"
 license = "MIT"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Topic :: Utilities",
 ]
@@ -29,3 +21,6 @@ classifiers = [
 Homepage = "https://github.com/Ae-Mc/FB2"
 Repository = "https://github.com/Ae-Mc/FB2"
 Issues = "https://github.com/Ae-Mc/FB2/issues"
+
+[dependency-groups]
+dev = ["ruff>=0.14.1"]

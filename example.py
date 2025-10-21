@@ -1,6 +1,16 @@
+import sys
 from urllib import request
 
-from FB2 import Author, ChapterWithSubchapters, FictionBook2, Image, SimpleChapter
+sys.path.append("./src")
+
+from FB2 import (
+    Author,
+    BaseChapter,
+    ChapterWithSubchapters,
+    FictionBook2,
+    Image,
+    SimpleChapter,
+)
 
 book = FictionBook2()
 book.titleInfo.title = "Example book"
@@ -30,32 +40,34 @@ book.titleInfo.sequences = [("Example books", 2)]
 book.documentInfo.authors = ["Ae Mc"]
 book.documentInfo.version = "1.1"
 
-book.chapters = [
-    SimpleChapter(
-        "Introduction",
-        content=[
-            "Introduction chapter first paragraph",
-            "Introduction chapter second paragraph",
-        ],
-    ),
-    SimpleChapter(
-        "1. Chapter one. FB2 format history",
-        content=[
-            "Introduction chapter first paragraph",
-            "Introduction chapter second paragraph",
-            Image(
-                media_type="image/jpeg",
-                content=request.urlopen("https://picsum.photos/1920/1080").read(),
-            ),
-            "Text after image 1",
-            Image(
-                media_type="image/jpeg",
-                content=request.urlopen("https://picsum.photos/1920/1080").read(),
-            ),
-            "Text after image 2",
-        ],
-    ),
-]
+book.chapters = list[BaseChapter](
+    [
+        SimpleChapter(
+            title="Introduction",
+            content=[
+                "Introduction chapter first paragraph",
+                "Introduction chapter second paragraph",
+            ],
+        ),
+        SimpleChapter(
+            title="1. Chapter one. FB2 format history",
+            content=[
+                "Introduction chapter first paragraph",
+                "Introduction chapter second paragraph",
+                Image(
+                    media_type="image/jpeg",
+                    content=request.urlopen("https://picsum.photos/1920/1080").read(),
+                ),
+                "Text after image 1",
+                Image(
+                    media_type="image/jpeg",
+                    content=request.urlopen("https://picsum.photos/1920/1080").read(),
+                ),
+                "Text after image 2",
+            ],
+        ),
+    ]
+)
 
 # Example of adding chapter with subchapters (subsections)
 book.chapters.append(
@@ -90,7 +102,7 @@ book.chapters.append(
                 ],
             ),
             ChapterWithSubchapters(
-                "Subchapter 2.3",
+                title="Subchapter 2.3",
                 subchapters=[
                     SimpleChapter(
                         title="Subsubchapter 2.3.1",
@@ -112,5 +124,5 @@ book.chapters.append(
     ),
 )
 
-book.chapters.append(SimpleChapter("3. Chapter three. Empty", []))
+book.chapters.append(SimpleChapter(title="3. Chapter three. Empty"))
 book.write("ExampleBook.fb2")

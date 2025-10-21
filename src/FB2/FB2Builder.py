@@ -1,21 +1,25 @@
 import xml.etree.ElementTree as ET
 from base64 import b64encode
+from typing import TYPE_CHECKING
 from xml.dom import minidom
 
+from FB2.builders import DocumentInfoBuilder, TitleInfoBuilder
 from FB2.Chapter import BaseChapter, ChapterWithSubchapters, SimpleChapter
 from FB2.constants import FB2_LINK_PREFIX
+from FB2.Image import Image
+from FB2.TitleInfo import TitleInfo
 
-from .builders import DocumentInfoBuilder, TitleInfoBuilder
-from .FictionBook2dataclass import FictionBook2dataclass
-from .Image import Image
-from .TitleInfo import TitleInfo
+if TYPE_CHECKING:
+    from FB2.FictionBook2 import FictionBook2
 
 
 class FB2Builder:
-    book: FictionBook2dataclass
     """Transforms FictionBook2 to xml (fb2) format"""
 
-    def __init__(self, book: FictionBook2dataclass):
+    book: "FictionBook2"
+    images: list[Image]
+
+    def __init__(self, book: "FictionBook2"):
         self.book = book
 
     def GetFB2(self) -> ET.Element:
@@ -26,6 +30,7 @@ class FB2Builder:
                 "xmlns:xlink": "http://www.w3.org/1999/xlink",
             },
         )
+        self.images = list(self.book.images)
         self._AddStylesheets(fb2Tree)
         self._AddCustomInfos(fb2Tree)
         self._AddDescription(fb2Tree)
@@ -51,7 +56,10 @@ class FB2Builder:
         self._AddDocumentInfo(description)
 
     def _AddTitleInfo(
-        self, rootElement: str, titleInfo: TitleInfo, description: ET.Element
+        self,
+        rootElement: str,
+        titleInfo: TitleInfo,
+        description: ET.Element,
     ) -> None:
         builder = TitleInfoBuilder(rootTag=rootElement, titleInfo=titleInfo)
         description.append(builder.GetResult())
@@ -67,12 +75,6 @@ class FB2Builder:
             ET.SubElement(
                 ET.SubElement(bodyElement, "title"), "p"
             ).text = self.book.titleInfo.title
-            if not all(
-                [isinstance(chapter, BaseChapter) for chapter in self.book.chapters]
-            ):
-                raise ValueError(
-                    "All chapters must be derived from BaseChapter (SimpleChapter or ChapterWithSubchapters)."
-                )
             for chapter in self.book.chapters:
                 bodyElement.append(self._BuildSectionFromChapter(chapter))
 
@@ -93,7 +95,7 @@ class FB2Builder:
                 "image",
                 attrib={f"{FB2_LINK_PREFIX}:href": f"#{chapter.image.uid}"},
             )
-            self.book.images.append(chapter.image)
+            self.images.append(chapter.image)
         if chapter.epigraph:
             epigraph = ET.SubElement(sectionElement, "epigraph")
             for element in chapter.epigraph:
@@ -107,19 +109,14 @@ class FB2Builder:
                 if isinstance(element, str):
                     ET.SubElement(sectionElement, "p").text = element
                 elif isinstance(element, Image):
-                    self.book.images.append(element)
+                    self.images.append(element)
                     ET.SubElement(
                         sectionElement,
                         "image",
                         attrib={f"{FB2_LINK_PREFIX}:href": f"#{element.uid}"},
                     )
-                elif isinstance(element, ET.Element):
-                    sectionElement.append(element)
                 else:
-                    raise ValueError(
-                        "Unknown section subelement type (supported: str, FB2.Image,"
-                        f" xml.etree.ElementTree.Element): {type(element)}"
-                    )
+                    sectionElement.append(element)
         elif isinstance(chapter, ChapterWithSubchapters):
             for subchapter in chapter.subchapters:
                 sectionElement.append(self._BuildSectionFromChapter(subchapter))
@@ -141,7 +138,7 @@ class FB2Builder:
                 self._AddBinary(
                     root, coverImage.uid, coverImage.media_type, coverImage.content
                 )
-        for image in self.book.images:
+        for image in self.images:
             self._AddBinary(root, image.uid, image.media_type, image.content)
 
     def _AddBinary(
@@ -152,6 +149,6 @@ class FB2Builder:
         ).text = b64encode(data).decode("utf-8")
 
     @staticmethod
-    def _PrettifyXml(element: ET.Element) -> str:
+    def PrettifyXml(element: ET.Element) -> str:
         dom = minidom.parseString(ET.tostring(element, "utf-8"))
         return dom.toprettyxml(encoding="utf-8").decode("utf-8")

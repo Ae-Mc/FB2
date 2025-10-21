@@ -1,9 +1,9 @@
-from dataclasses import dataclass, field
 from uuid import uuid4
 
+from pydantic import BaseModel, Field
 
-@dataclass
-class Image:
+
+class Image(BaseModel):
     """Image object
 
     Attributes:
@@ -14,4 +14,4 @@ class Image:
 
     media_type: str
     content: bytes
-    uid: str = field(default_factory=lambda: uuid4().hex)
+    uid: str = Field(default_factory=lambda: uuid4().hex)
