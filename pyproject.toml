@@ -1,6 +1,6 @@
 [project]
 name = "FB2"
-version = "0.3.1"
+version = "0.3.2"
 requires-python = ">=3.10"
 authors = [{ name = "Ae-Mc", email = "ae_mc@mail.ru" }]
 description = "A small package for working with FB2 files"
