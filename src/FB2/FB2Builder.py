@@ -5,6 +5,7 @@ from xml.dom import minidom
 
 from FB2.builders import DocumentInfoBuilder, TitleInfoBuilder
 from FB2.Chapter import BaseChapter, ChapterWithSubchapters, SimpleChapter
+from FB2.ChapterContent import EmptyLine, Paragraph, ParagraphBase
 from FB2.constants import FB2_LINK_PREFIX
 from FB2.Image import Image
 from FB2.TitleInfo import TitleInfo
@@ -106,17 +107,24 @@ class FB2Builder:
                 ET.SubElement(annotation, "p").text = element
         if isinstance(chapter, SimpleChapter):
             for element in chapter.content:
-                if isinstance(element, str):
-                    ET.SubElement(sectionElement, "p").text = element
-                elif isinstance(element, Image):
-                    self.images.append(element)
-                    ET.SubElement(
-                        sectionElement,
-                        "image",
-                        attrib={f"{FB2_LINK_PREFIX}:href": f"#{element.uid}"},
-                    )
-                else:
-                    sectionElement.append(element)
+                match element:
+                    case str():
+                        ET.SubElement(sectionElement, "p").text = element
+                    case Image():
+                        self.images.append(element)
+                        ET.SubElement(
+                            sectionElement,
+                            "image",
+                            attrib={f"{FB2_LINK_PREFIX}:href": f"#{element.uid}"},
+                        )
+                    case Paragraph():
+                        p = ET.Element("p")
+                        self._paragraph_to_fb2(element, p)
+                        sectionElement.append(p)
+                    case EmptyLine():
+                        ET.SubElement(sectionElement, "empty-line")
+                    case ET.Element():
+                        sectionElement.append(element)
         elif isinstance(chapter, ChapterWithSubchapters):
             for subchapter in chapter.subchapters:
                 sectionElement.append(self._BuildSectionFromChapter(subchapter))
@@ -126,6 +134,21 @@ class FB2Builder:
             )
 
         return sectionElement
+
+    def _paragraph_to_fb2(self, content: ParagraphBase, parent: ET.Element) -> None:
+        if isinstance(content.text, str):
+            content.text = [content.text]
+        for part in content.text:
+            match part:
+                case str():
+                    if len(parent) == 0:
+                        parent.text = part
+                    else:
+                        parent[-1].tail = part
+                case named_tag:
+                    child = ET.Element(named_tag.__class__.__name__.lower())
+                    self._paragraph_to_fb2(part, child)
+                    parent.append(child)
 
     def _AddBinaries(self, root: ET.Element) -> None:
         if self.book.titleInfo.coverPageImages is not None:

@@ -3,6 +3,7 @@ from typing import Sequence
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from FB2.ChapterContent import EmptyLine, Paragraph
 from FB2.Image import Image
 
 
@@ -26,8 +27,8 @@ class SimpleChapter(BaseChapter):
         content: list of strings (text), FB2.Image objects or xml.etree.ElementTree.Element objects
     """
 
-    content: Sequence[str | Image | ET.Element] = Field(
-        default_factory=list[str | Image | ET.Element]
+    content: Sequence[str | Image | Paragraph | EmptyLine | ET.Element] = Field(
+        default_factory=list[str | Image | Paragraph | EmptyLine | ET.Element]
     )
 
 

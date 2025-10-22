@@ -1,3 +1,4 @@
+import xml.etree.ElementTree as ET
 from typing import Sequence
 
 from pydantic import BaseModel, Field
@@ -35,5 +36,10 @@ class FictionBook2(BaseModel):
         with open(filename, "w", encoding="utf-8") as f:
             f.write(str(self))
 
+    def tostring(self: "FictionBook2", prettify: bool) -> str:
+        if prettify:
+            return FB2Builder.PrettifyXml(FB2Builder(self).GetFB2())
+        return ET.tostring(FB2Builder(self).GetFB2()).decode("utf-8")
+
     def __str__(self) -> str:
-        return FB2Builder.PrettifyXml(FB2Builder(self).GetFB2())
+        return self.tostring(prettify=True)
