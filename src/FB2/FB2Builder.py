@@ -173,5 +173,5 @@ class FB2Builder:
 
     @staticmethod
     def PrettifyXml(element: ET.Element) -> str:
-        dom = minidom.parseString(ET.tostring(element, "utf-8"))
+        dom = minidom.parseString(ET.tostring(element, "unicode"))
         return dom.toprettyxml(encoding="utf-8").decode("utf-8")

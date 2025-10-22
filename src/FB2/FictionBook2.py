@@ -32,14 +32,14 @@ class FictionBook2(BaseModel):
     chapters: Sequence[BaseChapter] = Field(default_factory=list[BaseChapter])
     images: Sequence[Image] = Field(default_factory=list[Image])
 
-    def write(self, filename: str):
+    def write(self, filename: str, prettify: bool = False):
         with open(filename, "w", encoding="utf-8") as f:
-            f.write(str(self))
+            f.write(self.tostring(prettify=prettify))
 
     def tostring(self: "FictionBook2", prettify: bool) -> str:
         if prettify:
             return FB2Builder.PrettifyXml(FB2Builder(self).GetFB2())
-        return ET.tostring(FB2Builder(self).GetFB2()).decode("utf-8")
+        return ET.tostring(FB2Builder(self).GetFB2(), encoding="unicode")
 
     def __str__(self) -> str:
         return self.tostring(prettify=True)
