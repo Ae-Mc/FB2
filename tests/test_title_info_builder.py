@@ -1,6 +1,7 @@
 import unittest
 from datetime import datetime
 
+from FB2.Image import Image
 from FB2.TitleInfo import TitleInfo
 from FB2.builders.TitleInfoBuilder import TitleInfoBuilder
 
@@ -15,6 +16,17 @@ class TitleInfoBuilderTest(unittest.TestCase):
         self.assertIsNotNone(date)
         self.assertEqual(date.get("value"), "2010-01-02")
         self.assertEqual(date.text, "2010")
+
+    def test_coverpage_precedes_language_as_required_by_fb2_schema(self):
+        title_info = TitleInfo(
+            coverPageImages=[Image(media_type="image/jpeg", content=b"image")],
+            lang="ru",
+        )
+
+        result = TitleInfoBuilder(titleInfo=title_info).GetResult()
+        tags = [child.tag for child in result]
+
+        self.assertLess(tags.index("coverpage"), tags.index("lang"))
 
 
 if __name__ == "__main__":

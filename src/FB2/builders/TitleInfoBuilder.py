@@ -36,11 +36,11 @@ class TitleInfoBuilder:
             self.AddAnnotation(titleInfo.annotation)
             self.AddKeywords(titleInfo.keywords)
             self.AddDate(titleInfo.date)
+            self.AddCoverImages(titleInfo.coverPageImages)
             self.AddLang(titleInfo.lang)
             self.AddSrcLang(titleInfo.srcLang)
             self.AddTranslators(titleInfo.translators)
             self.AddSequences(titleInfo.sequences)
-            self.AddCoverImages(titleInfo.coverPageImages)
 
     def AddBookTitle(self, title: str):
         ET.SubElement(self.result, "book-title").text = title
