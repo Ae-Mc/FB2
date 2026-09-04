@@ -75,9 +75,9 @@ class TitleInfoBuilder:
     def AddDate(self, date: tuple[datetime, str | None] | None) -> None:
         if date is not None:
             ET.SubElement(
-                parent=self.result,
-                tag="date",
-                attrib={"value": date[0].strftime("%Y-%m-%d")},
+                self.result,
+                "date",
+                {"value": date[0].strftime("%Y-%m-%d")},
             ).text = date[1] or date[0].strftime("%d.%m.%Y")
 
     def AddLang(self, lang: str) -> None:
