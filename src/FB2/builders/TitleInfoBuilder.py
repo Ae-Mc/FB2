@@ -36,11 +36,11 @@ class TitleInfoBuilder:
             self.AddAnnotation(titleInfo.annotation)
             self.AddKeywords(titleInfo.keywords)
             self.AddDate(titleInfo.date)
+            self.AddCoverImages(titleInfo.coverPageImages)
             self.AddLang(titleInfo.lang)
             self.AddSrcLang(titleInfo.srcLang)
             self.AddTranslators(titleInfo.translators)
             self.AddSequences(titleInfo.sequences)
-            self.AddCoverImages(titleInfo.coverPageImages)
 
     def AddBookTitle(self, title: str):
         ET.SubElement(self.result, "book-title").text = title
@@ -75,9 +75,9 @@ class TitleInfoBuilder:
     def AddDate(self, date: tuple[datetime, str | None] | None) -> None:
         if date is not None:
             ET.SubElement(
-                parent=self.result,
-                tag="date",
-                attrib={"value": date[0].strftime("%Y-%m-%d")},
+                self.result,
+                "date",
+                {"value": date[0].strftime("%Y-%m-%d")},
             ).text = date[1] or date[0].strftime("%d.%m.%Y")
 
     def AddLang(self, lang: str) -> None:
